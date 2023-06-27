@@ -237,7 +237,7 @@ namespace Microprogram
                 currentDR[i] = memory[address][i];
             }
         }
-        
+
         public void ACTDR()
         {
             for (int i = 0; i < 16; i++)
@@ -346,7 +346,7 @@ namespace Microprogram
 
         public void ARTPC()
         {
-              for (int i = 0; i < 11; i++)
+            for (int i = 0; i < 11; i++)
             {
                 currentPC[i] = AR[i];
             }
@@ -354,7 +354,7 @@ namespace Microprogram
 
         public void SUB()
         {
-            
+
             bool[] temp = new bool[16];
             for (int i = 0; i < 16; i++)
             {
@@ -372,6 +372,207 @@ namespace Microprogram
             for (int i = 0; i < 16; i++)
             {
                 DR[i] = temp[i];
+            }
+        }
+
+        public void executeF1(int code)
+        {
+            switch (code)
+            {
+                case 1:
+                    control.instruction = "ADD";
+                    ADD();
+                    break;
+                case 2:
+                    control.instruction = "CLRAC";
+                    CLRAC();
+                    break;
+                case 3:
+                    control.instruction = "INCAC";
+                    INCAC();
+                    break;
+                case 4:
+                    control.instruction = "DRTAC";
+                    DRTAC();
+                    break;
+                case 5:
+                    control.instruction = "DRTAR";
+                    DRTAR();
+                    break;
+                case 6:
+                    control.instruction = "PCTAR";
+                    PCTAR();
+                    break;
+                case 7:
+                    control.instruction = "WRITE";
+                    WRITE();
+                    break;
+                default:
+                    control.instruction = "NOP";
+                    break;
+            }
+
+        }
+
+        public void executeF2(int code)
+        {
+            switch (code)
+            {
+                case 1:
+                    control.instruction = "SUB";
+                    SUB();
+                    break;
+                case 2:
+                    control.instruction = "OR";
+                    OR();
+                    break;
+                case 3:
+                    control.instruction = "AND";
+                    AND();
+                    break;
+                case 4:
+                    control.instruction = "READ";
+                    READ();
+                    break;
+                case 5:
+                    control.instruction = "ACTDR";
+                    ACTDR();
+                    break;
+                case 6:
+                    control.instruction = "INCDR";
+                    INCDR();
+                    break;
+                case 7:
+                    control.instruction = "PCTDR";
+                    PCTDR();
+                    break;
+                default:
+                    control.instruction = "NOP";
+                    break;
+            }
+
+        }
+
+        public void executeF3(int code)
+        {
+            switch (code)
+            {
+                case 1:
+                    control.instruction = "XOR";
+                    XOR();
+                    break;
+                case 2:
+                    control.instruction = "COM";
+                    COM();
+                    break;
+                case 3:
+                    control.instruction = "SHL";
+                    SHL();
+                    break;
+                case 4:
+                    control.instruction = "SHR";
+                    SHR();
+                    break;
+                case 5:
+                    control.instruction = "INCPC";
+                    INCPC();
+                    break;
+                case 6:
+                    control.instruction = "ARTPC";
+                    ARTPC();
+                    break;
+                default:
+                    control.instruction = "NOP";
+                    break;
+            }
+
+        }
+
+        public static int convertBoolArrayToInt(bool[] array)
+        {
+            int result = 0;
+            for (int i = 0; i < array.Length; i++)
+            {
+                if (array[i])
+                {
+                    result += (int)Math.Pow(2, i);
+                }
+            }
+            return result;
+        }
+
+        public static bool[] convertIntToBoolArray(int num, int size)
+        {
+            bool[] result = new bool[size];
+            for (int i = 0; i < size; i++)
+            {
+                if (num % 2 == 1)
+                {
+                    result[i] = true;
+                }
+                else
+                {
+                    result[i] = false;
+                }
+                num /= 2;
+            }
+            return result;
+        }   
+
+        public void execute(int code1, int code2, int code3, int condition, int branch, int address)
+        {
+            executeF1(code1);
+            executeF2(code2);
+            executeF3(code3);
+            bool cond = false;
+            switch (condition)
+            {
+                case 1:
+                    cond = I();
+                    break;
+                case 2:
+                    cond = S();
+                    break;
+                case 3:
+                    cond = Z();
+                    break;
+                default:
+                    cond = U();
+                    break;
+            }
+            if (cond)
+            {
+                switch (branch)
+                {
+                    case 1:
+                        // JMP
+                        control.CAR = convertIntToBoolArray(address, 7);
+                        break;
+                    case 2:
+                        // CALL
+                        control.SBR = convertIntToBoolArray(convertBoolArrayToInt(control.CAR) + 1, 7);
+                        control.CAR = convertIntToBoolArray(address, 7);
+                        break;
+                    case 3:
+                        // RET
+                        control.CAR = control.SBR;
+                        break;
+                    case 4:
+                        // MAP
+                        for (int i = 1; i <= 4; i++)
+                        {
+                            control.CAR[i] = DR[i];
+                        }
+                        control.CAR[0] = false; control.CAR[5] = false; control.CAR[6] = false;
+                        break;
+                    default:
+                        control.CAR = convertIntToBoolArray(convertBoolArrayToInt(control.CAR) + 1, 7);
+                        break;
+                }
+            }
+            else
+            {
+                control.CAR = convertIntToBoolArray(convertBoolArrayToInt(control.CAR) + 1, 7);
             }
         }
     }
