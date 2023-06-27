@@ -575,5 +575,342 @@ namespace Microprogram
                 control.CAR = convertIntToBoolArray(convertBoolArrayToInt(control.CAR) + 1, 7);
             }
         }
+
+        public void firstRead(string line)
+        {
+            if (line.Contains(':'))
+            {
+                for (int i = 0; i < 100; i++)
+                {
+                    if (String.IsNullOrEmpty(control.labelTabel[i][0]))
+                    {
+                        control.labelTabel[i][0] = Convert.ToString(control.memoryPointer);
+                        control.labelTabel[i][1] = line.Split(':')[0];
+                        break;
+                    }
+                }
+            }
+        }
+        public void secondRead(string line)
+        {
+            control.label = "";
+            if (line.Contains("END"))
+            {
+                control.finished = true;
+                return;
+            }
+            else if (line.Contains("ORG"))
+            {
+                var temp = line.Split(' ');
+                control.memoryPointer = int.Parse(temp[1]);
+            }
+            else
+            {
+                string[] instruction = line.Split(' ');
+                if (line.Contains(':'))
+                {
+                    var temp = line.Split(':');
+                    control.label = temp[0];
+                    instruction = temp[1].Split(' ');
+                }
+
+                if (instruction[0].Contains(','))
+                {
+                    string[] microOperations = instruction[0].Split(',');
+                    foreach (var item in microOperations)
+                    {
+                        switch (item)
+                        {
+                            case "ADD":
+                                control.controlMemory[control.memoryPointer][0] = false;
+                                control.controlMemory[control.memoryPointer][1] = false;
+                                control.controlMemory[control.memoryPointer][2] = true;
+                                break;
+                            case "CLRAC":
+                                control.controlMemory[control.memoryPointer][0] = false;
+                                control.controlMemory[control.memoryPointer][1] = true;
+                                control.controlMemory[control.memoryPointer][2] = false;
+                                break;
+                            case "INCAC":
+                                control.controlMemory[control.memoryPointer][0] = false;
+                                control.controlMemory[control.memoryPointer][1] = true;
+                                control.controlMemory[control.memoryPointer][2] = true;
+                                break;
+                            case "DRTAC":
+                                control.controlMemory[control.memoryPointer][0] = true;
+                                control.controlMemory[control.memoryPointer][1] = false;
+                                control.controlMemory[control.memoryPointer][2] = false;
+                                break;
+                            case "DRTAR":
+                                control.controlMemory[control.memoryPointer][0] = true;
+                                control.controlMemory[control.memoryPointer][1] = false;
+                                control.controlMemory[control.memoryPointer][2] = true;
+                                break;
+                            case "PCTAR":
+                                control.controlMemory[control.memoryPointer][0] = true;
+                                control.controlMemory[control.memoryPointer][1] = true;
+                                control.controlMemory[control.memoryPointer][2] = false;
+                                break;
+                            case "WRITE":
+                                control.controlMemory[control.memoryPointer][0] = true;
+                                control.controlMemory[control.memoryPointer][1] = true;
+                                control.controlMemory[control.memoryPointer][2] = true;
+                                break;
+                            case "SUB":
+                                control.controlMemory[control.memoryPointer][3] = false;
+                                control.controlMemory[control.memoryPointer][4] = false;
+                                control.controlMemory[control.memoryPointer][5] = true;
+                                break;
+                            case "OR":
+                                control.controlMemory[control.memoryPointer][3] = false;
+                                control.controlMemory[control.memoryPointer][4] = true;
+                                control.controlMemory[control.memoryPointer][5] = false;
+                                break;
+                            case "AND":
+                                control.controlMemory[control.memoryPointer][3] = false;
+                                control.controlMemory[control.memoryPointer][4] = true;
+                                control.controlMemory[control.memoryPointer][5] = true;
+                                break;
+                            case "READ":
+                                control.controlMemory[control.memoryPointer][3] = true;
+                                control.controlMemory[control.memoryPointer][4] = false;
+                                control.controlMemory[control.memoryPointer][5] = false;
+                                break;
+                            case "ACTDR":
+                                control.controlMemory[control.memoryPointer][3] = true;
+                                control.controlMemory[control.memoryPointer][4] = false;
+                                control.controlMemory[control.memoryPointer][5] = true;
+                                break;
+                            case "INCDR":
+                                control.controlMemory[control.memoryPointer][3] = true;
+                                control.controlMemory[control.memoryPointer][4] = true;
+                                control.controlMemory[control.memoryPointer][5] = false;
+                                break;
+                            case "PCTDR":
+                                control.controlMemory[control.memoryPointer][3] = true;
+                                control.controlMemory[control.memoryPointer][4] = true;
+                                control.controlMemory[control.memoryPointer][5] = true;
+                                break;
+                            case "XOR":
+                                control.controlMemory[control.memoryPointer][6] = false;
+                                control.controlMemory[control.memoryPointer][7] = false;
+                                control.controlMemory[control.memoryPointer][8] = true;
+                                break;
+                            case "COM":
+                                control.controlMemory[control.memoryPointer][6] = false;
+                                control.controlMemory[control.memoryPointer][7] = true;
+                                control.controlMemory[control.memoryPointer][8] = false;
+                                break;
+                            case "SHL":
+                                control.controlMemory[control.memoryPointer][6] = false;
+                                control.controlMemory[control.memoryPointer][7] = true;
+                                control.controlMemory[control.memoryPointer][8] = true;
+                                break;
+                            case "SHR":
+                                control.controlMemory[control.memoryPointer][6] = true;
+                                control.controlMemory[control.memoryPointer][7] = false;
+                                control.controlMemory[control.memoryPointer][8] = false;
+                                break;
+                            case "INCPC":
+                                control.controlMemory[control.memoryPointer][6] = true;
+                                control.controlMemory[control.memoryPointer][7] = false;
+                                control.controlMemory[control.memoryPointer][8] = true;
+                                break;
+                            case "ARTPC":
+                                control.controlMemory[control.memoryPointer][6] = true;
+                                control.controlMemory[control.memoryPointer][7] = true;
+                                control.controlMemory[control.memoryPointer][8] = false;
+                                break;
+                        }
+                    }
+                }
+                else
+                {
+                    switch (instruction[0])
+                    {
+                        case "ADD":
+                            control.controlMemory[control.memoryPointer][0] = false;
+                            control.controlMemory[control.memoryPointer][1] = false;
+                            control.controlMemory[control.memoryPointer][2] = true;
+                            break;
+                        case "CLRAC":
+                            control.controlMemory[control.memoryPointer][0] = false;
+                            control.controlMemory[control.memoryPointer][1] = true;
+                            control.controlMemory[control.memoryPointer][2] = false;
+                            break;
+                        case "INCAC":
+                            control.controlMemory[control.memoryPointer][0] = false;
+                            control.controlMemory[control.memoryPointer][1] = true;
+                            control.controlMemory[control.memoryPointer][2] = true;
+                            break;
+                        case "DRTAC":
+                            control.controlMemory[control.memoryPointer][0] = true;
+                            control.controlMemory[control.memoryPointer][1] = false;
+                            control.controlMemory[control.memoryPointer][2] = false;
+                            break;
+                        case "DRTAR":
+                            control.controlMemory[control.memoryPointer][0] = true;
+                            control.controlMemory[control.memoryPointer][1] = false;
+                            control.controlMemory[control.memoryPointer][2] = true;
+                            break;
+                        case "PCTAR":
+                            control.controlMemory[control.memoryPointer][0] = true;
+                            control.controlMemory[control.memoryPointer][1] = true;
+                            control.controlMemory[control.memoryPointer][2] = false;
+                            break;
+                        case "WRITE":
+                            control.controlMemory[control.memoryPointer][0] = true;
+                            control.controlMemory[control.memoryPointer][1] = true;
+                            control.controlMemory[control.memoryPointer][2] = true;
+                            break;
+                        case "SUB":
+                            control.controlMemory[control.memoryPointer][3] = false;
+                            control.controlMemory[control.memoryPointer][4] = false;
+                            control.controlMemory[control.memoryPointer][5] = true;
+                            break;
+                        case "OR":
+                            control.controlMemory[control.memoryPointer][3] = false;
+                            control.controlMemory[control.memoryPointer][4] = true;
+                            control.controlMemory[control.memoryPointer][5] = false;
+                            break;
+                        case "AND":
+                            control.controlMemory[control.memoryPointer][3] = false;
+                            control.controlMemory[control.memoryPointer][4] = true;
+                            control.controlMemory[control.memoryPointer][5] = true;
+                            break;
+                        case "READ":
+                            control.controlMemory[control.memoryPointer][3] = true;
+                            control.controlMemory[control.memoryPointer][4] = false;
+                            control.controlMemory[control.memoryPointer][5] = false;
+                            break;
+                        case "ACTDR":
+                            control.controlMemory[control.memoryPointer][3] = true;
+                            control.controlMemory[control.memoryPointer][4] = false;
+                            control.controlMemory[control.memoryPointer][5] = true;
+                            break;
+                        case "INCDR":
+                            control.controlMemory[control.memoryPointer][3] = true;
+                            control.controlMemory[control.memoryPointer][4] = true;
+                            control.controlMemory[control.memoryPointer][5] = false;
+                            break;
+                        case "PCTDR":
+                            control.controlMemory[control.memoryPointer][3] = true;
+                            control.controlMemory[control.memoryPointer][4] = true;
+                            control.controlMemory[control.memoryPointer][5] = true;
+                            break;
+                        case "XOR":
+                            control.controlMemory[control.memoryPointer][6] = false;
+                            control.controlMemory[control.memoryPointer][7] = false;
+                            control.controlMemory[control.memoryPointer][8] = true;
+                            break;
+                        case "COM":
+                            control.controlMemory[control.memoryPointer][6] = false;
+                            control.controlMemory[control.memoryPointer][7] = true;
+                            control.controlMemory[control.memoryPointer][8] = false;
+                            break;
+                        case "SHL":
+                            control.controlMemory[control.memoryPointer][6] = false;
+                            control.controlMemory[control.memoryPointer][7] = true;
+                            control.controlMemory[control.memoryPointer][8] = true;
+                            break;
+                        case "SHR":
+                            control.controlMemory[control.memoryPointer][6] = true;
+                            control.controlMemory[control.memoryPointer][7] = false;
+                            control.controlMemory[control.memoryPointer][8] = false;
+                            break;
+                        case "INCPC":
+                            control.controlMemory[control.memoryPointer][6] = true;
+                            control.controlMemory[control.memoryPointer][7] = false;
+                            control.controlMemory[control.memoryPointer][8] = true;
+                            break;
+                        case "ARTPC":
+                            control.controlMemory[control.memoryPointer][6] = true;
+                            control.controlMemory[control.memoryPointer][7] = true;
+                            control.controlMemory[control.memoryPointer][8] = false;
+                            break;
+                    }
+                }
+                switch (instruction[1])
+                {
+                    case "U":
+                        control.controlMemory[control.memoryPointer][9] = false;
+                        control.controlMemory[control.memoryPointer][10] = false;
+                        break;
+                    case "I":
+                        control.controlMemory[control.memoryPointer][9] = false;
+                        control.controlMemory[control.memoryPointer][10] = true;
+                        break;
+                    case "S":
+                        control.controlMemory[control.memoryPointer][9] = true;
+                        control.controlMemory[control.memoryPointer][10] = false;
+                        break;
+                    case "Z":
+                        control.controlMemory[control.memoryPointer][9] = true;
+                        control.controlMemory[control.memoryPointer][10] = true;
+                        break;
+                }
+
+                int temp = 0;
+
+                switch (instruction[2])
+                {
+
+                    case "JMP":
+                        control.controlMemory[control.memoryPointer][11] = false;
+                        control.controlMemory[control.memoryPointer][12] = false;
+                        if (instruction[3] == "NEXT")
+                        {
+                            temp = control.memoryPointer + 1;
+                        }
+                        else
+                        {
+                            for (int i = 0; i < control.labelTabel.GetLength(0); i++)
+                            {
+                                if (instruction[3] == control.labelTabel[i][0])
+                                {
+                                    temp = Convert.ToInt32(control.labelTabel[i][1]);
+                                    break;
+                                }
+                            }    
+                        }
+                        break;
+                    case "CALL":
+                        control.controlMemory[control.memoryPointer][11] = false;
+                        control.controlMemory[control.memoryPointer][12] = true;
+                        if (instruction[3] == "NEXT")
+                        {
+                            temp = control.memoryPointer + 1;
+                        }
+                        else
+                        {
+                            for (int i = 0; i < control.labelTabel.GetLength(0); i++)
+                            {
+                                if (instruction[3] == control.labelTabel[i][0])
+                                {
+                                    temp = Convert.ToInt32(control.labelTabel[i][1]);
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+                    case "RET":
+                        control.controlMemory[control.memoryPointer][11] = true;
+                        control.controlMemory[control.memoryPointer][12] = false;
+                        break;
+                    case "MAP":
+                        control.controlMemory[control.memoryPointer][11] = true;
+                        control.controlMemory[control.memoryPointer][12] = true;
+                        break;
+                }
+
+                bool[] ADDRESS = new bool[7];
+                ADDRESS = convertIntToBoolArray(temp, 7);
+                for (int i = 0; i < 7; i++)
+                {
+                    control.controlMemory[control.memoryPointer][i + 13] = ADDRESS[i];
+                }
+                
+            }
+        }
     }
 }
