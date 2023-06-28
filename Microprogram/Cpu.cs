@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,6 +20,9 @@ namespace Microprogram
         public bool[] currentAC = new bool[16];
         public bool[][] memory = new bool[2048][];
         public bool[][] currentMemory = new bool[2048][];
+        public string[][] lookupTable = new string[100][];
+        public int pointer = 0;
+        public bool finishFlag = false;
 
         // write a constructor for the CPU class
         public Cpu()
@@ -31,6 +35,10 @@ namespace Microprogram
             {
                 memory[i] = new bool[16];
                 currentMemory[i] = new bool[16];
+            }
+            for (int i = 0; i < 100; i++)
+            {
+                lookupTable[i] = new string[2];
             }
         }
 
@@ -609,9 +617,9 @@ namespace Microprogram
                 string[] instruction = line.Split(' ');
                 if (line.Contains(':'))
                 {
-                    var temp = line.Split(':');
-                    control.label = temp[0];
-                    instruction = temp[1].Split(' ');
+                    var temperary = line.Split(':');
+                    control.label = temperary[0];
+                    instruction = temperary[1].Split(' ');
                 }
 
                 if (instruction[0].Contains(','))
@@ -910,6 +918,104 @@ namespace Microprogram
                     control.controlMemory[control.memoryPointer][i + 13] = ADDRESS[i];
                 }
                 
+            }
+        }
+        
+        public void loadLookupTable(string line)
+        {
+            for (int i = 0; i < 100; i++)
+            {
+                if (String.IsNullOrEmpty(lookupTable[i][0]))
+                {
+                    lookupTable[i][0] = Convert.ToString(pointer);
+                    lookupTable[i][1] = line.Split(',')[0];
+                    break;
+                }
+            }
+        }
+
+        public void Read(string line)
+        {
+            int value = 0;
+            int opcode = 0;
+            int address = 0;
+            if (line == "HALT")
+            {
+                finishFlag = true;
+                return;
+            }
+            if (line.Contains("INDRCT"))
+            {
+                memory[pointer][0] = true;
+            }
+            if (line.Contains(','))
+            {
+                if (line.Split(',')[1].Trim().Split(' ')[0] == "HEX")
+                {
+                    value = Convert.ToInt32(line.Split(',')[1].Trim().Split(' ')[1], 16);
+                    bool[] binaryValue = new bool[16];
+                    binaryValue = convertIntToBoolArray(value, 16);
+                    for (int i = 0; i < 100; i++)
+                    {
+                        if (line.Split(',')[0] == lookupTable[i][1])
+                        {
+                            for (int j = 0; j < 16; j++)
+                            {
+                                memory[pointer][j] = binaryValue[j];
+                            }
+                            break;
+                        }
+                    }
+                }
+                else if (line.Split(',')[1].Trim().Split(' ')[0] == "DEC")
+                {
+                    value = Convert.ToInt32(line.Split(',')[1].Trim().Split(' ')[1]);
+                    bool[] binaryValue = new bool[16];
+                    binaryValue = convertIntToBoolArray(value, 16);
+                    for (int i = 0; i < 100; i++)
+                    {
+                        if (line.Split(',')[0] == lookupTable[i][1])
+                        {
+                            for (int j = 0; j < 16; j++)
+                            {
+                                memory[pointer][j] = binaryValue[j];
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < 100; i++)
+                {
+                    if (line.Split(' ')[0] == lookupTable[i][1])
+                    {
+                        opcode = Convert.ToInt32(control.labelTabel[i][0]);
+                        opcode /= 4;
+                        bool[] binaryValue = new bool[4];
+                        binaryValue = convertIntToBoolArray(address, 4);
+                        for (int j = 0; j < 4; j++)
+                        {
+                            memory[pointer][j + 1] = binaryValue[j];
+                        }
+                        break;
+                    }
+                }
+                for (int i = 0; i < 100; i++)
+                {
+                    if (line.Split(' ')[1] == lookupTable[i][1])
+                    {
+                        address = Convert.ToInt32(lookupTable[i][0]);
+                        bool[] binaryValue = new bool[11];
+                        binaryValue = convertIntToBoolArray(address, 11);
+                        for (int j = 0; j < 11; j++)
+                        {
+                            memory[pointer][j + 5] = binaryValue[j];
+                        }
+                        break;
+                    }
+                }
             }
         }
     }
